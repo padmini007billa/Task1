@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumen Air Booking</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky:#2F6FED;
+    --sky-ink:#1652c9;
+    --gold:#E58F1F;
+    --gold-soft:#F6D9A8;
+    --ink:#141B2E;
+    --ink-2:#4A5573;
+    --paper:#F5F6FB;
+    --surface:#FFFFFF;
+    --surface-2:#EBEEF6;
+    --line:#D6DBEA;
+    --good:#1E8E5A;
+    --shadow: 0 20px 40px -24px rgba(20,27,46,.35);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --sky:#6C97F3;
+      --sky-ink:#9db8f7;
+      --gold:#F0AA45;
+      --gold-soft:#4E3A16;
+      --ink:#E9EDF9;
+      --ink-2:#A7B0CC;
+      --paper:#0A0E1A;
+      --surface:#121A2C;
+      --surface-2:#1A2338;
+      --line:#2B3552;
+      --good:#4FCB8E;
+      --shadow: 0 20px 40px -24px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --sky:#6C97F3;
+    --sky-ink:#9db8f7;
+    --gold:#F0AA45;
+    --gold-soft:#4E3A16;
+    --ink:#E9EDF9;
+    --ink-2:#A7B0CC;
+    --paper:#0A0E1A;
+    --surface:#121A2C;
+    --surface-2:#1A2338;
+    --line:#2B3552;
+    --good:#4FCB8E;
+    --shadow: 0 20px 40px -24px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    padding-inline:16px;
+    padding-block:28px 48px;
+  }
+  h1,h2,h3{font-family:"Archivo","IBM Plex Sans",sans-serif; text-wrap:balance; margin:0;}
+  .mono{font-family:"IBM Plex Mono", ui-monospace, monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+
+  .wrap{max-width:1180px; margin:0 auto;}
+
+  /* ---------- Header ---------- */
+  .brand{
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    margin-bottom:28px; flex-wrap:wrap;
+  }
+  .brand-mark{display:flex; align-items:center; gap:10px;}
+  .brand-mark svg{width:34px; height:34px; flex:none;}
+  .brand-mark .name{font-family:"Archivo",sans-serif; font-weight:800; font-size:1.35rem; letter-spacing:.01em;}
+  .brand-mark .name em{color:var(--sky); font-style:normal;}
+  .brand-tag{font-size:.78rem; color:var(--ink-2); letter-spacing:.12em; text-transform:uppercase; margin-top:2px;}
+  .theme-note{font-size:.78rem; color:var(--ink-2);}
+
+  /* ---------- Layout ---------- */
+  .stage{
+    display:grid;
+    grid-template-columns: minmax(0,1.35fr) minmax(300px, .95fr);
+    gap:22px;
+    align-items:start;
+  }
+  @media (max-width:860px){
+    .stage{grid-template-columns:1fr;}
+  }
+
+  .panel{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:22px;
+    box-shadow:var(--shadow);
+  }
+
+  /* ---------- Search form ---------- */
+  .eyebrow{
+    font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--sky-ink);
+    font-weight:700; margin-bottom:6px;
+  }
+  .search-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    margin-top:16px;
+  }
+  .field{display:flex; flex-direction:column; gap:6px; min-width:0;}
+  .field.full{grid-column:1/-1;}
+  .field label{font-size:.75rem; color:var(--ink-2); font-weight:600;}
+  .field input, .field select{
+    font:inherit; font-size:.95rem;
+    padding:10px 12px;
+    border-radius:10px;
+    border:1px solid var(--line);
+    background:var(--paper);
+    color:var(--ink);
+    width:100%;
+  }
+  .field input:focus, .field select:focus, button:focus-visible, .seat:focus-visible, .chip:focus-visible{
+    outline:2px solid var(--sky); outline-offset:2px;
+  }
+  .swap-row{
+    display:flex; align-items:end; gap:10px;
+  }
+  .swap-btn{
+    border:1px solid var(--line); background:var(--surface-2); border-radius:10px;
+    width:38px; height:38px; flex:none; cursor:pointer; color:var(--ink);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .swap-btn:hover{border-color:var(--sky);}
+
+  .chips{display:flex; gap:8px; flex-wrap:wrap;}
+  .chip{
+    border:1px solid var(--line); background:var(--paper); color:var(--ink);
+    padding:8px 14px; border-radius:999px; font-size:.85rem; cursor:pointer;
+    font-weight:600;
+  }
+  .chip[aria-pressed="true"]{
+    background:var(--sky); border-color:var(--sky); color:#fff;
+  }
+  .stepper{display:flex; align-items:center; gap:10px;}
+  .stepper button{
+    width:32px; height:32px; border-radius:8px; border:1px solid var(--line);
+    background:var(--surface-2); color:var(--ink); font-size:1rem; cursor:pointer; line-height:1;
+  }
+  .stepper span{min-width:2ch; text-align:center; font-weight:700;}
+
+  .search-btn{
+    margin-top:18px; width:100%;
+    background:var(--sky); color:#fff; border:none;
+    padding:13px 18px; border-radius:12px; font-weight:700; font-size:.95rem;
+    cursor:pointer; letter-spacing:.02em;
+    box-shadow:0 12px 24px -12px var(--sky);
+  }
+  .search-btn:hover{background:var(--sky-ink);}
+
+  /* ---------- Results ---------- */
+  .results{margin-top:24px; display:flex; flex-direction:column; gap:12px;}
+  .results-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:2px;}
+  .results-head p{margin:0; color:var(--ink-2); font-size:.85rem;}
+
+  .flight-card{
+    border:1px solid var(--line); border-radius:14px; padding:16px;
+    display:grid; gap:12px;
+    background:var(--paper);
+    transition:border-color .15s;
+  }
+  .flight-card[data-selected="true"]{
+    border-color:var(--sky); box-shadow:0 0 0 1px var(--sky) inset;
+  }
+  .fc-top{display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+  .fc-route{display:flex; align-items:center; gap:14px;}
+  .fc-time{font-family:"Archivo",sans-serif; font-size:1.3rem; font-weight:700;}
+  .fc-code{font-size:.72rem; color:var(--ink-2); letter-spacing:.08em; text-transform:uppercase;}
+  .fc-path{
+    display:flex; flex-direction:column; align-items:center; color:var(--ink-2); font-size:.7rem;
+    min-width:90px;
+  }
+  .fc-line{width:100%; height:1px; background:var(--line); position:relative; margin:5px 0;}
+  .fc-line::after{
+    content:"✈"; position:absolute; right:0; top:-8px; font-size:.75rem; color:var(--sky);
+  }
+  .fc-meta{display:flex; gap:16px; font-size:.78rem; color:var(--ink-2); flex-wrap:wrap;}
+  .fc-meta b{color:var(--ink);}
+  .fc-fares{display:flex; gap:8px; flex-wrap:wrap; border-top:1px dashed var(--line); padding-top:12px;}
+  .fare-btn{
+    flex:1; min-width:120px;
+    border:1px solid var(--line); background:var(--surface); color:var(--ink);
+    border-radius:10px; padding:9px 10px; cursor:pointer; text-align:left;
+  }
+  .fare-btn small{display:block; color:var(--ink-2); font-size:.68rem; text-transform:uppercase; letter-spacing:.06em;}
+  .fare-btn strong{font-family:"IBM Plex Mono",monospace; font-size:1rem;}
+  .fare-btn[aria-pressed="true"]{border-color:var(--gold); background:var(--gold-soft); color:var(--ink);}
+
+  /* ---------- Ticket ---------- */
+  .ticket-shell{position:sticky; top:12px;}
+  .ticket-flip{perspective:1400px;}
+  .ticket{
+    position:relative;
+    border-radius:16px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    box-shadow:var(--shadow);
+    transform-style:preserve-3d;
+    transition:transform .8s cubic-bezier(.2,.8,.2,1);
+    min-height:420px;
+  }
+  .ticket[data-flipped="true"]{transform:rotateY(180deg);}
+  .ticket-face{
+    position:absolute; inset:0;
+    -webkit-backface-visibility:hidden; backface-visibility:hidden;
+    border-radius:16px;
+    display:flex; flex-direction:column;
+    overflow:hidden;
+  }
+  .ticket-face.back{transform:rotateY(180deg);}
+
+  .t-head{
+    background:linear-gradient(135deg,var(--sky),var(--sky-ink));
+    color:#fff; padding:16px 18px; display:flex; justify-content:space-between; align-items:center;
+  }
+  .t-head .airline{font-family:"Archivo",sans-serif; font-weight:800; letter-spacing:.02em; font-size:1.05rem;}
+  .t-head .cls{font-size:.72rem; text-transform:uppercase; letter-spacing:.1em; opacity:.9;}
+
+  .t-route{
+    padding:18px 18px 10px; display:flex; align-items:center; justify-content:space-between; gap:8px;
+  }
+  .t-city{text-align:center; flex:1; min-width:0;}
+  .t-city .code{font-family:"Archivo",sans-serif; font-weight:800; font-size:1.6rem; line-height:1;}
+  .t-city .name{font-size:.68rem; color:var(--ink-2); margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .t-plane{color:var(--gold); font-size:1rem; flex:none; position:relative; top:-4px;}
+
+  .t-grid{
+    display:grid; grid-template-columns:repeat(3,1fr);
+    gap:10px 8px; padding:6px 18px 14px; border-bottom:1px dashed var(--line);
+  }
+  .t-cell .k{font-size:.62rem; text-transform:uppercase; letter-spacing:.09em; color:var(--ink-2);}
+  .t-cell .v{font-size:.95rem; font-weight:700; margin-top:2px;}
+
+  .t-pax{padding:14px 18px; display:grid; grid-template-columns:1fr auto; gap:10px 16px;}
+  .t-pax .k{font-size:.62rem; text-transform:uppercase; letter-spacing:.09em; color:var(--ink-2);}
+  .t-pax .v{font-size:1rem; font-weight:700; letter-spacing:.04em;}
+
+  .t-stub{
+    margin-top:auto; padding:14px 18px; background:var(--surface-2);
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .t-pnr{font-size:.62rem; color:var(--ink-2); text-transform:uppercase; letter-spacing:.09em;}
+  .t-pnr b{display:block; font-size:1.05rem; color:var(--ink); letter-spacing:.12em;}
+  .t-barcode{display:flex; gap:2px; height:34px; align-items:stretch;}
+  .t-barcode span{width:3px; background:var(--ink); opacity:.85;}
+
+  .notch{
+    position:absolute; width:20px; height:20px; background:var(--paper);
+    border-radius:50%; top:calc(50% + 46px);
+  }
+  .notch.left{left:-10px;}
+  .notch.right{right:-10px;}
+
+  .t-empty{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:10px; color:var(--ink-2); text-align:center; padding:30px;
+  }
+  .t-empty svg{width:46px; height:46px; opacity:.6;}
+
+  /* back face - QR-ish + path */
+  .back-body{padding:20px; display:flex; flex-direction:column; gap:16px; height:100%; align-items:center; justify-content:center;}
+  .qr{
+    display:grid; grid-template-columns:repeat(8,1fr); gap:3px;
+    width:150px; height:150px; padding:10px; background:#fff; border-radius:10px;
+  }
+  .qr div{background:var(--ink);}
+  .qr div.off{background:transparent;}
+  .back-code{font-size:.75rem; color:var(--ink-2); letter-spacing:.1em;}
+  .back-flag{font-size:.72rem; color:var(--ink-2); text-align:center; max-width:220px;}
+
+  .seat-map{margin-top:16px;}
+  .seat-map h3{font-size:.85rem; margin-bottom:10px;}
+  .rows{display:flex; flex-direction:column; gap:6px;}
+  .seat-row{display:grid; grid-template-columns:repeat(3,26px) 16px repeat(3,26px); gap:5px; align-items:center; justify-content:center;}
+  .seat{
+    width:26px; height:24px; border-radius:6px 6px 3px 3px; border:1px solid var(--line);
+    background:var(--surface-2); cursor:pointer; font-size:.6rem; color:var(--ink-2);
+    display:flex; align-items:center; justify-content:center; font-family:"IBM Plex Mono",monospace;
+  }
+  .seat[data-taken="true"]{background:var(--line); color:var(--ink-2); cursor:not-allowed; opacity:.6;}
+  .seat[data-premium="true"]{border-color:var(--gold);}
+  .seat[data-selected="true"]{background:var(--sky); border-color:var(--sky); color:#fff;}
+  .row-num{font-size:.62rem; color:var(--ink-2); text-align:right; padding-right:2px;}
+
+  .confirm-btn{
+    margin-top:18px; width:100%; padding:13px 18px; border-radius:12px;
+    border:none; background:var(--gold); color:#231404; font-weight:700; font-size:.95rem;
+    cursor:pointer;
+  }
+  .confirm-btn:disabled{background:var(--surface-2); color:var(--ink-2); cursor:not-allowed;}
+  .reset-link{
+    display:block; text-align:center; margin-top:10px; font-size:.8rem; color:var(--ink-2);
+    background:none; border:none; cursor:pointer; text-decoration:underline; width:100%;
+  }
+
+  .toast{
+    position:fixed; left:50%; bottom:24px; transform:translate(-50%,20px);
+    background:var(--ink); color:var(--paper); padding:12px 20px; border-radius:10px;
+    font-size:.85rem; font-weight:600; opacity:0; transition:opacity .3s, transform .3s;
+    pointer-events:none; z-index:20; box-shadow:0 10px 30px -10px rgba(0,0,0,.4);
+  }
+  .toast[data-show="true"]{opacity:1; transform:translate(-50%,0);}
+
+  @media (prefers-reduced-motion: reduce){
+    .ticket, .toast{transition:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M2 16.5 L21 12 L2 7.5 L2 11 L14 12 L2 13 Z" fill="var(--sky)"/>
+      </svg>
+      <div>
+        <div class="name">Lumen <em>Air</em></div>
+        <div class="brand-tag">Booking &amp; boarding pass</div>
+      </div>
+    </div>
+    <div class="theme-note">Fictional airline &middot; demo booking flow</div>
+  </div>
+
+  <div class="stage">
+
+    <!-- LEFT: search + results -->
+    <div class="left-col">
+      <section class="panel" aria-labelledby="search-h">
+        <div class="eyebrow">Search flights</div>
+        <h2 id="search-h" style="font-size:1.3rem;">Where are you flying?</h2>
+
+        <div class="search-grid">
+          <div class="field">
+            <label for="origin">From</label>
+            <input id="origin" list="airports" value="New York (JFK)" autocomplete="off">
+          </div>
+          <div class="swap-row">
+            <div class="field" style="flex:1;">
+              <label for="dest">To</label>
+              <input id="dest" list="airports" value="Paris (CDG)" autocomplete="off">
+            </div>
+            <button class="swap-btn" id="swapBtn" type="button" title="Swap origin and destination" aria-label="Swap origin and destination">⇄</button>
+          </div>
+          <datalist id="airports">
+            <option value="New York (JFK)"></option>
+            <option value="Paris (CDG)"></option>
+            <option value="London (LHR)"></option>
+            <option value="Tokyo (HND)"></option>
+            <option value="Reykjavik (KEF)"></option>
+            <option value="Lisbon (LIS)"></option>
+          </datalist>
+
+          <div class="field">
+            <label for="depart">Departure date</label>
+            <input id="depart" type="date" value="2026-10-12">
+          </div>
+          <div class="field">
+            <label for="pax">Passengers</label>
+            <div class="stepper">
+              <button type="button" id="paxMinus" aria-label="Fewer passengers">–</button>
+              <span id="paxCount" class="mono">1</span>
+              <button type="button" id="paxPlus" aria-label="More passengers">+</button>
+            </div>
+          </div>
+
+          <div class="field full">
+            <label>Cabin</label>
+            <div class="chips" id="cabinChips" role="group" aria-label="Cabin class">
+              <button type="button" class="chip" data-cabin="economy" aria-pressed="true">Economy</button>
+              <button type="button" class="chip" data-cabin="premium" aria-pressed="false">Premium</button>
+              <button type="button" class="chip" data-cabin="business" aria-pressed="false">Business</button>
+            </div>
+          </div>
+        </div>
+
+        <button class="search-btn" id="searchBtn" type="button">Search flights</button>
+
+        <div class="results" id="results" aria-live="polite">
+          <div class="results-head">
+            <h3 style="font-size:1rem;">4 flights &middot; JFK → CDG</h3>
+            <p>Fares in USD, per passenger</p>
+          </div>
+          <!-- flight cards injected here -->
+        </div>
+      </section>
+    </div>
+
+    <!-- RIGHT: boarding pass -->
+    <div class="ticket-shell">
+      <section class="panel" aria-labelledby="ticket-h">
+        <div class="eyebrow">Your boarding pass</div>
+        <h2 id="ticket-h" style="font-size:1.3rem; margin-bottom:14px;">Builds as you choose</h2>
+
+        <div class="ticket-flip">
+          <div class="ticket" id="ticket" data-flipped="false">
+            <div class="ticket-face front" id="ticketFront">
+              <div class="t-empty" id="ticketEmpty">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                  <path d="M3 12.5 12 4l9 8.5M5 11v8a1 1 0 0 0 1 1h4v-5h4v5h4a1 1 0 0 0 1-1v-8"/>
+                </svg>
+                <p>Pick a flight and fare on the left — your pass fills in here.</p>
+              </div>
+            </div>
+            <div class="ticket-face back" id="ticketBack" style="background:var(--surface);">
+              <div class="back-body">
+                <div class="qr" id="qrGrid"></div>
+                <div class="back-code mono" id="backPnr">— — — — — —</div>
+                <div class="back-flag">Scan at the gate. This code is decorative — no real reservation was made.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="seat-map" id="seatMapWrap" hidden>
+          <h3>Choose a seat</h3>
+          <div class="rows" id="seatRows"></div>
+        </div>
+
+        <div class="field full" style="margin-top:16px;" id="nameField" hidden>
+          <label for="paxName">Passenger name (as on ID)</label>
+          <input id="paxName" placeholder="e.g. ANANYA RAO" autocomplete="off">
+        </div>
+
+        <button class="confirm-btn" id="confirmBtn" disabled type="button">Select a flight to continue</button>
+        <button class="reset-link" id="resetBtn" type="button" hidden>Start a new search</button>
+      </section>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var FLIGHTS = [
+    {no:"LM 214", from:"JFK", fromCity:"New York", to:"CDG", toCity:"Paris", dep:"19:40", arr:"08:55", dur:"7h 15m", stops:"Nonstop", aircraft:"A350", fares:{economy:412, premium:780, business:1980}},
+    {no:"LM 88",  from:"JFK", fromCity:"New York", to:"CDG", toCity:"Paris", dep:"09:05", arr:"22:20", dur:"7h 15m", stops:"Nonstop", aircraft:"777-300ER", fares:{economy:389, premium:745, business:1860}},
+    {no:"LM 502", from:"JFK", fromCity:"New York", to:"CDG", toCity:"Paris", dep:"13:20", arr:"03:50+1", dur:"8h 30m", stops:"1 stop · KEF", aircraft:"787-9", fares:{economy:298, premium:640, business:1590}},
+    {no:"LM 617", from:"JFK", fromCity:"New York", to:"CDG", toCity:"Paris", dep:"23:10", arr:"12:35", dur:"7h 25m", stops:"Nonstop", aircraft:"A330", fares:{economy:455, premium:820, business:2140}}
+  ];
+
+  var state = {
+    flightIdx: null,
+    cabin: "economy",
+    seat: null,
+    pnr: null,
+    issued: false
+  };
+
+  var resultsEl = document.getElementById("results");
+  var cabinChips = document.querySelectorAll("#cabinChips .chip");
+  var confirmBtn = document.getElementById("confirmBtn");
+  var resetBtn = document.getElementById("resetBtn");
+  var nameField = document.getElementById("nameField");
+  var paxNameInput = document.getElementById("paxName");
+  var seatMapWrap = document.getElementById("seatMapWrap");
+  var seatRows = document.getElementById("seatRows");
+  var ticket = document.getElementById("ticket");
+  var toastEl = document.getElementById("toast");
+
+  function money(n){ return "$" + n.toLocaleString("en-US"); }
+
+  function renderResults(){
+    resultsEl.querySelectorAll(".flight-card").forEach(function(n){ n.remove(); });
+    FLIGHTS.forEach(function(f, i){
+      var card = document.createElement("div");
+      card.className = "flight-card";
+      card.dataset.selected = String(state.flightIdx === i);
+      card.innerHTML =
+        '<div class="fc-top">' +
+          '<div class="fc-route">' +
+            '<div><div class="fc-time">' + f.dep + '</div><div class="fc-code">' + f.from + '</div></div>' +
+            '<div class="fc-path"><span>' + f.dur + '</span><div class="fc-line"></div><span>' + f.stops + '</span></div>' +
+            '<div><div class="fc-time">' + f.arr + '</div><div class="fc-code">' + f.to + '</div></div>' +
+          '</div>' +
+          '<div class="fc-meta"><span><b>' + f.no + '</b></span><span>' + f.aircraft + '</span></div>' +
+        '</div>' +
+        '<div class="fc-fares">' +
+          fareBtn(i,"economy","Economy",f.fares.economy) +
+          fareBtn(i,"premium","Premium",f.fares.premium) +
+          fareBtn(i,"business","Business",f.fares.business) +
+        '</div>';
+      resultsEl.appendChild(card);
+    });
+    resultsEl.querySelectorAll(".fare-btn").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var i = Number(btn.dataset.i);
+        var cabin = btn.dataset.cabin;
+        state.flightIdx = i;
+        state.cabin = cabin;
+        syncCabinChips();
+        renderResults();
+        renderTicket();
+      });
+    });
+  }
+
+  function fareBtn(i, cabin, label, price){
+    var pressed = state.flightIdx === i && state.cabin === cabin;
+    return '<button type="button" class="fare-btn" data-i="' + i + '" data-cabin="' + cabin + '" aria-pressed="' + pressed + '">' +
+      '<small>' + label + '</small><strong>' + money(price) + '</strong></button>';
+  }
+
+  function syncCabinChips(){
+    cabinChips.forEach(function(c){ c.setAttribute("aria-pressed", String(c.dataset.cabin === state.cabin)); });
+  }
+
+  cabinChips.forEach(function(chip){
+    chip.addEventListener("click", function(){
+      state.cabin = chip.dataset.cabin;
+      syncCabinChips();
+      renderResults();
+      if (state.flightIdx !== null) renderTicket();
+    });
+  });
+
+  // passenger count stepper (cosmetic, feeds header count)
+  var paxCount = 1;
+  document.getElementById("paxPlus").addEventListener("click", function(){
+    paxCount = Math.min(6, paxCount + 1);
+    document.getElementById("paxCount").textContent = String(paxCount);
+  });
+  document.getElementById("paxMinus").addEventListener("click", function(){
+    paxCount = Math.max(1, paxCount - 1);
+    document.getElementById("paxCount").textContent = String(paxCount);
+  });
+
+  document.getElementById("swapBtn").addEventListener("click", function(){
+    var o = document.getElementById("origin"), d = document.getElementById("dest");
+    var tmp = o.value; o.value = d.value; d.value = tmp;
+  });
+
+  document.getElementById("searchBtn").addEventListener("click", function(){
+    var head = resultsEl.querySelector(".results-head h3");
+    var o = document.getElementById("origin").value.match(/\(([^)]+)\)/);
+    var d = document.getElementById("dest").value.match(/\(([^)]+)\)/);
+    var oc = o ? o[1] : "JFK", dc = d ? d[1] : "CDG";
+    head.textContent = FLIGHTS.length + " flights · " + oc + " → " + dc;
+    resultsEl.scrollIntoView({behavior:"smooth", block:"nearest"});
+  });
+
+  // ---- seat map ----
+  var TAKEN = {"2A":1,"2F":1,"4C":1,"5D":1,"7B":1,"8A":1};
+  function buildSeatMap(){
+    seatRows.innerHTML = "";
+    for (var r = 1; r <= 8; r++){
+      var row = document.createElement("div");
+      row.className = "seat-row";
+      ["A","B","C"].forEach(function(col){ row.appendChild(seatCell(r, col)); });
+      row.appendChild(document.createElement("span"));
+      ["D","E","F"].forEach(function(col){ row.appendChild(seatCell(r, col)); });
+      seatRows.appendChild(row);
+    }
+  }
+  function seatCell(r, col){
+    var id = r + col;
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "seat";
+    btn.textContent = id;
+    btn.dataset.taken = String(!!TAKEN[id]);
+    btn.dataset.premium = String(r <= 2);
+    btn.dataset.selected = String(state.seat === id);
+    btn.disabled = !!TAKEN[id];
+    btn.setAttribute("aria-label", "Seat " + id + (TAKEN[id] ? " (taken)" : r<=2 ? " (extra legroom)" : ""));
+    btn.addEventListener("click", function(){
+      state.seat = id;
+      buildSeatMap();
+      renderTicket();
+    });
+    return btn;
+  }
+
+  paxNameInput.addEventListener("input", renderTicket);
+
+  // ---- ticket ----
+  function gateFor(flight){
+    var sum = flight.no.split("").reduce(function(a,c){ return a + c.charCodeAt(0); }, 0);
+    return "B" + (12 + (sum % 18));
+  }
+  function groupFor(cabin, seat){
+    if (cabin === "business") return 1;
+    if (cabin === "premium") return 2;
+    if (seat && parseInt(seat,10) <= 2) return 3;
+    return 4;
+  }
+
+  function renderTicket(){
+    var f = state.flightIdx !== null ? FLIGHTS[state.flightIdx] : null;
+    var empty = document.getElementById("ticketEmpty");
+    var front = document.getElementById("ticketFront");
+
+    seatMapWrap.hidden = !f;
+    nameField.hidden = !f;
+
+    if (!f){
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = "Select a flight to continue";
+      return;
+    }
+    if (!seatRows.childElementCount) buildSeatMap();
+
+    if (empty) empty.remove();
+
+    var name = paxNameInput.value.trim() || "GUEST TRAVELER";
+    var gate = gateFor(f);
+    var group = groupFor(state.cabin, state.seat);
+    var cabinLabel = state.cabin.charAt(0).toUpperCase() + state.cabin.slice(1);
+
+    front.innerHTML =
+      '<div class="t-head"><span class="airline">Lumen Air</span><span class="cls">' + cabinLabel + ' · ' + f.no + '</span></div>' +
+      '<div class="t-route">' +
+        '<div class="t-city"><div class="code">' + f.from + '</div><div class="name">' + f.fromCity + '</div></div>' +
+        '<div class="t-plane">✈</div>' +
+        '<div class="t-city"><div class="code">' + f.to + '</div><div class="name">' + f.toCity + '</div></div>' +
+      '</div>' +
+      '<div class="t-grid">' +
+        cell("Departs", f.dep) + cell("Arrives", f.arr) + cell("Duration", f.dur) +
+        cell("Gate", gate) + cell("Group", "GRP " + group) + cell("Seat", state.seat || "—") +
+      '</div>' +
+      '<div class="t-pax">' +
+        '<div><div class="k">Passenger</div><div class="v mono">' + escapeHtml(name) + '</div></div>' +
+        '<div><div class="k">Flight</div><div class="v mono">' + f.no + '</div></div>' +
+      '</div>' +
+      '<div class="t-stub">' +
+        '<div class="t-pnr">Confirmation<b>' + (state.pnr || "PENDING") + '</b></div>' +
+        '<div class="t-barcode" aria-hidden="true">' + barcode(name + f.no + (state.seat||"")) + '</div>' +
+      '</div>' +
+      '<div class="notch left"></div><div class="notch right"></div>';
+
+    confirmBtn.disabled = !state.seat;
+    confirmBtn.textContent = state.seat ? "Confirm & issue boarding pass" : "Choose a seat to continue";
+  }
+
+  function cell(k, v){
+    return '<div class="t-cell"><div class="k">' + k + '</div><div class="v mono">' + v + '</div></div>';
+  }
+  function escapeHtml(s){
+    return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+  function barcode(seed){
+    var bars = "";
+    for (var i = 0; i < 28; i++){
+      var c = seed.charCodeAt(i % seed.length) || 65;
+      var h = 14 + ((c * (i+3)) % 20);
+      bars += '<span style="height:' + h + 'px;"></span>';
+    }
+    return bars;
+  }
+
+  function randPnr(){
+    var chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    var out = "";
+    for (var i = 0; i < 6; i++) out += chars[Math.floor(Math.random() * chars.length)];
+    return out;
+  }
+
+  function buildQr(seed){
+    var grid = document.getElementById("qrGrid");
+    grid.innerHTML = "";
+    for (var i = 0; i < 64; i++){
+      var c = seed.charCodeAt(i % seed.length) || 66;
+      var on = ((c * (i+1)) % 5) < 2;
+      var d = document.createElement("div");
+      if (!on) d.className = "off";
+      grid.appendChild(d);
+    }
+  }
+
+  function showToast(msg){
+    toastEl.textContent = msg;
+    toastEl.dataset.show = "true";
+    clearTimeout(toastEl._t);
+    toastEl._t = setTimeout(function(){ toastEl.dataset.show = "false"; }, 3200);
+  }
+
+  confirmBtn.addEventListener("click", function(){
+    if (!state.seat) return;
+    state.pnr = randPnr();
+    state.issued = true;
+    renderTicket();
+    document.getElementById("backPnr").textContent = state.pnr.split("").join(" ");
+    buildQr(state.pnr);
+    ticket.dataset.flipped = "true";
+    confirmBtn.hidden = true;
+    resetBtn.hidden = false;
+    showToast("Boarding pass issued · PNR " + state.pnr);
+  });
+
+  resetBtn.addEventListener("click", function(){
+    state = {flightIdx: null, cabin: "economy", seat: null, pnr: null, issued: false};
+    paxNameInput.value = "";
+    ticket.dataset.flipped = "false";
+    confirmBtn.hidden = false;
+    resetBtn.hidden = true;
+    syncCabinChips();
+    renderResults();
+    setTimeout(function(){
+      document.getElementById("ticketFront").innerHTML =
+        '<div class="t-empty" id="ticketEmpty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">' +
+        '<path d="M3 12.5 12 4l9 8.5M5 11v8a1 1 0 0 0 1 1h4v-5h4v5h4a1 1 0 0 0 1-1v-8"/></svg>' +
+        '<p>Pick a flight and fare on the left — your pass fills in here.</p></div>';
+      seatMapWrap.hidden = true;
+      nameField.hidden = true;
+      confirmBtn.textContent = "Select a flight to continue";
+    }, 400);
+  });
+
+  renderResults();
+  renderTicket();
+})();
+</script>
+
+</body>
+</html>
